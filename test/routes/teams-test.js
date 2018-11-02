@@ -114,7 +114,27 @@ describe('Teams', function () {
                         done();
                     });
             });
-
          });
+    });
+    describe('GET /names/:name', () => {
+        describe('When keyword is valid', function () {
+            it('should return the specific team with fuzzy search', function (done) {
+                chai.request(server)
+                    .get('/teams/name' + "/Los")
+                    .end(function (err, res) {
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.a('array');
+                        expect(res.body.length).to.equal(2);
+                        let result = _.map(res.body, (teams) => {
+                            return {name: teams.name}
+                        });
+                        expect(result).to.include({name: "Los Angeles Cippers"});
+                        expect(result).to.include({name: "Los Angeles Lakers"});
+                        Team.collection.drop();
+                        Player.collection.drop();
+                        done();
+                    });
+            });
+        });
     });
 });
