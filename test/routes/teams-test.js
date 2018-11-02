@@ -216,5 +216,50 @@ describe('Teams', function () {
         }); // end-describe
     });
 
+    describe('PUT /teams/:id/numPlayer', () => {
+        describe('When id is valid', function () {
+            it('should return a message and the nunmPlayer changed', function (done) {
+                chai.request(server)
+                    .get('/teams')
+                    .end(function (err, res) {
+                        let numPlayer = {numPlayer: 201};
+                        chai.request(server)
+                            .put('/teams/' + res.body[0]._id + '/numPlayer')
+                            .send(numPlayer)
+                            .end(function (error, response) {
+                                expect(response).to.have.status(200);
+                                expect(response.body).to.be.a('object');
+                                expect(response.body).to.have.property('message').equal('Team Successfully Change NumPlayer!');
+                                done()
+                            });
+                    });
+            });
+            after(function (done) {
+                chai.request(server)
+                    .get('/teams')
+                    .end(function (err, res) {
+                        expect(res.body[0].numPlayer).equal(201);
+                        Team.collection.drop();
+                        Player.collection.drop();
+                        done();
+                    });
+            });  // end-after
+        }); // end-describe
+    });
+    describe('When id is invalid', function () {
+        it('should return a 404 and a message for invalid team id', function (done) {
+            let numPlayer={numPlayer:201};
+            chai.request(server)
+                .put('/teams/assad/numPlayer')
+                .send(numPlayer)
+                .end(function (err, res) {
+                    expect(res).to.have.status(404);
+                    expect(res.body).to.have.property('message', 'Team NOT Change NumPlayer!');
+                    Team.collection.drop();
+                    Player.collection.drop();
+                    done();
+                });
+        });
+    });
 });
 
