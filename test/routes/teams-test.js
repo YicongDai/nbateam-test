@@ -61,4 +61,26 @@ describe('Teams', function () {
             done();
         });
     });
+
+    describe('GET api', function () {
+        describe('GET /teams', () => {
+            it('should return all the teams in an array', function (done) {
+                chai.request(server)
+                    .get('/teams')
+                    .end((err, res) => {
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.a('array');
+                        expect(res.body.length).to.equal(2);
+                        let result = _.map(res.body, (teams) => {
+                            return {name: teams.name, city: teams.city}
+                        });
+                        expect(result).to.include({name: "Los Angeles Cippers", city: "Los Angeles"});
+                        expect(result).to.include({name: "Los Angeles Lakers", city: "Los Angeles"});
+                        Team.collection.drop();
+                        Player.collection.drop();
+                        done();
+                    });
+            });
+        });
+    });
 });
