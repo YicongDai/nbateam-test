@@ -271,4 +271,39 @@ describe('Players', function () {
         }); // end-describe
 
     });
+    describe('PUT api',function() {
+        describe('PUT /players/:id/salary', () => {
+            describe('When id is valid', function () {
+                it('should return a message and the salary changed', function (done) {
+                    chai.request(server)
+                        .get('/players')
+                        .end(function (err, res) {
+                            let salary = {salary: 111};
+                            chai.request(server)
+                                .put('/players/' + res.body[0]._id + '/salary')
+                                .send(salary)
+                                .end(function (error, response) {
+                                    expect(response).to.have.status(200);
+                                    expect(response.body).to.be.a('object');
+                                    expect(response.body).to.have.property('message').equal('Player Successfully Change salary!');
+                                    done()
+                                });
+                        });
+                });
+                after(function (done) {
+                    chai.request(server)
+                        .get('/players')
+                        .end(function (err, res) {
+
+                            expect(res.body[0].salary).equal(111);
+
+                            Team.collection.drop();
+                            Player.collection.drop();
+
+                            done();
+                        });
+                });  // end-after
+            }); // end-describe
+        });
+    });
 });
