@@ -150,4 +150,27 @@ describe('Teams', function () {
             });
         });
     });
+    describe('GET /:id/info', () => {
+        it('should return the specific player related to player schema', function (done) {
+            chai.request(server)
+                .get('/teams')
+                .end(function (err, res) {
+                    chai.request(server)
+                        .get('/teams/' + res.body[0]._id + "/info")
+                        .end(function (err, res) {
+                            expect(res).to.have.status(200);
+                            expect(res.body).to.be.a('object');
+                            expect(res.body).to.have.property("message", 'Team Successfully find player!');
+                            expect(res.body).to.have.property("data");
+                            expect(res.body.data).to.have.property("playerId");
+                            expect(res.body.data.playerId).be.a('array');
+                            expect(res.body.data.playerId).include({name: "Avery Bradley",age:27});
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+        });
+    });
 });
+
