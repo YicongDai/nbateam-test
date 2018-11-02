@@ -248,6 +248,21 @@ describe('Teams', function () {
                 });  // end-after
             }); // end-describe
         });
+        describe('When id is invalid', function () {
+            it('should return a 404 and a message for invalid team id', function (done) {
+                let rank = {rank: 111};
+                chai.request(server)
+                    .put('/teams/assad/rank')
+                    .send(rank)
+                    .end(function (err, res) {
+                        expect(res).to.have.status(404);
+                        expect(res.body).to.have.property('message', 'Team NOT ChangeRank!');
+                        Team.collection.drop();
+                        Player.collection.drop();
+                        done();
+                    });
+            });
+        });
     });
 });
 
