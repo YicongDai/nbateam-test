@@ -216,5 +216,38 @@ describe('Teams', function () {
         }); // end-describe
     });
 
+    describe('PUT api',function() {
+        describe('PUT /teams/:id/rank', () => {
+            describe('When id is valid', function () {
+                it('should return a message and the rank changed', function (done) {
+                    chai.request(server)
+                        .get('/teams')
+                        .end(function (err, res) {
+                            let rank = {rank: 111};
+                            chai.request(server)
+                                .put('/teams/' + res.body[0]._id + '/rank')
+                                .send(rank)
+                                .end(function (error, response) {
+                                    expect(response).to.have.status(200);
+                                    expect(response.body).to.be.a('object');
+                                    expect(response.body).to.have.property('message').equal('Team Successfully ChangeRank!');
+                                    done()
+                                });
+                        });
+                });
+                after(function (done) {
+                    chai.request(server)
+                        .get('/teams')
+                        .end(function (err, res) {
+
+                            expect(res.body[0].rank).equal(111);
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });  // end-after
+            }); // end-describe
+        });
+    });
 });
 
