@@ -199,5 +199,32 @@ describe('Players', function () {
                 });
             });
         });
+
+        describe('GET /:id/info', () => {
+            it('should return the specific player related to player schema', function (done) {
+                chai.request(server)
+                    .get('/players')
+                    .end(function (err, res) {
+                        chai.request(server)
+                            .get('/players/' + res.body[0]._id + "/info")
+                            .end(function (err, res) {
+                                expect(res).to.have.status(200);
+                                expect(res.body).to.be.a('object');
+                                expect(res.body).to.have.property("message").equal('Player Successfully find team!');
+
+                                expect(res.body).to.have.property("data");
+
+                                expect(res.body.data).to.have.property("teamId");
+                                expect(res.body.data.teamId).be.a('Object');
+
+                                expect(res.body.data.teamId).include({name: "Golden State Warriors"});
+                                Team.collection.drop();
+                                Player.collection.drop();
+                                done();
+
+                            });
+                    });
+            });
+        });
     });
 });
