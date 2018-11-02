@@ -161,5 +161,43 @@ describe('Players', function () {
                 });
             });
         });
+        describe('GET /position/:position', () => {
+            describe('When keyword is valid', function () {
+                it('should return the specific player with fuzzy search', function (done) {
+                    chai.request(server)
+                        .get('/players')
+                        .end(function (err, res) {
+                            chai.request(server)
+                                .get('/players/position' + "/sf")
+                                .end(function (err, res) {
+                                    expect(res).to.have.status(200);
+                                    expect(res.body).to.be.a('array');
+                                    expect(res.body.length).to.equal(2);
+                                    let result = _.map(res.body, (teams) => {
+                                        return {name: teams.name}
+                                    });
+                                    expect(result).include({name: "LeBorn James"});
+                                    expect(result).include({name: "Kevin Durant"});
+                                    Team.collection.drop();
+                                    Player.collection.drop();
+                                    done();
+                                });
+                        });
+                });
+            });
+            describe('When keyword is invalid', function () {
+                it('should return  a 404 and a message for invalid keyword', function (done) {
+                    chai.request(server)
+                        .get('/players/name' + "/aabbcc")
+                        .end(function (err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message', 'Players Not Found!(Invalid keyword)');
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
+        });
     });
 });
