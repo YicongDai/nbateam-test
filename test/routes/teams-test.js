@@ -83,4 +83,24 @@ describe('Teams', function () {
             });
         });
     });
+    describe('GET /teams/:id', function () {
+        describe('When id is valid', function () {
+            it('should return the specific team', function (done) {
+                chai.request(server)
+                    .get('/teams')
+                    .end(function (err, res) {
+                        chai.request(server)
+                            .get('/teams/' + res.body[0]._id)
+                            .end(function (err, res) {
+                                expect(res).to.have.status(200);
+                                expect(res.body).to.be.a('Object');
+                                expect(res.body).include({name: "Los Angeles Cippers", city: "Los Angeles"});
+                                Team.collection.drop();
+                                Player.collection.drop();
+                                done();
+                            });
+                    });
+            });
+        });
+    });
 });
