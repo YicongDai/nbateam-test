@@ -136,5 +136,18 @@ describe('Teams', function () {
                     });
             });
         });
+        describe('When keyword is invalid', function () {
+            it('should return  a 404 and a message for invalid keyword', function (done) {
+                chai.request(server)
+                    .get('/teams/name' + "/aabbcc")
+                    .end(function (err, res) {
+                        expect(res).to.have.status(404);
+                        expect(res.body).to.have.property('message', 'Teams Not Found!(invalid keyword)');
+                        Team.collection.drop();
+                        Player.collection.drop();
+                        done();
+                    });
+            });
+        });
     });
 });
