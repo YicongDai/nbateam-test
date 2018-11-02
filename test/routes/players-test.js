@@ -306,4 +306,56 @@ describe('Players', function () {
             }); // end-describe
         });
     });
+    describe('DELETE api',function(){
+        describe('delete /players/:id',  function () {
+            describe('When id is valid', () => {
+                it('should delete a specific player', function(done) {
+                    chai.request(server)
+                        .get('/players')
+                        .end(function (err, res) {
+                            chai.request(server)
+                                .delete('/players/' + res.body[0]._id)
+                                .end(function (error, response) {
+                                    expect(response).to.have.status(200);
+
+                                    expect(response.body).to.be.a('object');
+                                    expect(response.body).to.have.property('message').equal('Player Successfully Deleted!');
+                                    done();
+                                });
+                        });
+                });
+                after(function  (done) {
+                    chai.request(server)
+                        .get('/players')
+                        .end(function(err, res) {
+                            expect(res).to.have.status(200);
+                            expect(res.body).to.be.a('array');
+                            let result = _.map(res.body, (players) => {
+                                return {name: players.name}
+                            });
+                            expect(result).to.not.include({name: 'Stephen Curry'});
+
+                            Team.collection.drop();
+                            Player.collection.drop();
+
+
+                            done();
+                        });
+                });  // end-after
+            }); // end-describe
+            describe('When id is invalid',function () {
+                it('should return a 404 and a message for invalid player id', function (done) {
+                    chai.request(server)
+                        .delete('/players/asfsaf')
+                        .end(function (err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message', 'Player NOT DELETED!(invalid id)');
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
+        });
+    });
 });
