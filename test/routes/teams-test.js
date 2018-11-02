@@ -11,5 +11,54 @@ let Player = require("../../models/players");
 let mongoose = require('mongoose');
 
 describe('Teams', function () {
-
+    beforeEach(function(done){
+        var newTeam = new Team({
+            _id : mongoose.Types.ObjectId("5bc78656f34c1e2078895de5"),
+            zone : { name : "Pacific Division", location : "West" },
+            name : "Los Angeles Cippers",
+            city: "Los Angeles",
+            numPlayer : 20,
+            championships : 20,
+            rank : 10,
+            playerId : [ mongoose.Types.ObjectId("5bcb5e110d3f4a3298c92564")]
+        });
+        newTeam.save(function(err) {
+            done();
+        });
+    });
+    beforeEach(function(done){
+        var newTeam1 = new Team({
+            _id : mongoose.Types.ObjectId("5bc786def34c1e2078895de7"),
+            zone : { name : "Pacific Division", location : "West" },
+            name : "Los Angeles Lakers",
+            city: "Los Angeles",
+            numPlayer : 16,
+            championships : 16,
+            rank : 11,
+            playerId : [ mongoose.Types.ObjectId("5bcb60fa0d3f4a3298c92565")]
+        });
+        newTeam1.save(function(err) {
+            done();
+        });
+    });
+    beforeEach(function(done){
+        var newPlayer = new Player({
+            _id : mongoose.Types.ObjectId("5bcb5e110d3f4a3298c92564"),
+            name : "Avery Bradley",
+            age:27
+        });
+        newPlayer.save(function(err) {
+            done();
+        });
+    });
+    beforeEach(function(done){
+        var newPlayer1 = new Player({
+            _id : mongoose.Types.ObjectId("5bcb60fa0d3f4a3298c92565"),
+            name : "LeBorn James",
+            age:33
+        });
+        newPlayer1.save(function(err) {
+            done();
+        });
+    });
 });
