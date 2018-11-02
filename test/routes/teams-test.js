@@ -82,19 +82,92 @@ describe('Teams', function () {
                     });
             });
         });
-    });
-    describe('GET /teams/:id', function () {
-        describe('When id is valid', function () {
-            it('should return the specific team', function (done) {
+
+        describe('GET /teams/:id', function () {
+            describe('When id is valid', function () {
+                it('should return the specific team', function (done) {
+                    chai.request(server)
+                        .get('/teams')
+                        .end(function (err, res) {
+                            chai.request(server)
+                                .get('/teams/' + res.body[0]._id)
+                                .end(function (err, res) {
+                                    expect(res).to.have.status(200);
+                                    expect(res.body).to.be.a('Object');
+                                    expect(res.body).include({name: "Los Angeles Cippers", city: "Los Angeles"});
+                                    Team.collection.drop();
+                                    Player.collection.drop();
+                                    done();
+                                });
+                        });
+                });
+            });
+
+            describe('When id is invalid', function () {
+                it('should return  a 404 and a message for invalid team id', function (done) {
+                    chai.request(server)
+                        .get('/teams/' + "aabbcc")
+                        .end(function (err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message', 'Team NOT Found! Please check the right id');
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
+        });
+
+        describe('GET /names/:name', () => {
+            describe('When keyword is valid', function () {
+                it('should return the specific team with fuzzy search', function (done) {
+                    chai.request(server)
+                        .get('/teams/name' + "/Los")
+                        .end(function (err, res) {
+                            expect(res).to.have.status(200);
+                            expect(res.body).to.be.a('array');
+                            expect(res.body.length).to.equal(2);
+                            let result = _.map(res.body, (teams) => {
+                                return {name: teams.name}
+                            });
+                            expect(result).to.include({name: "Los Angeles Cippers"});
+                            expect(result).to.include({name: "Los Angeles Lakers"});
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
+            describe('When keyword is invalid', function () {
+                it('should return  a 404 and a message for invalid keyword', function (done) {
+                    chai.request(server)
+                        .get('/teams/name' + "/aabbcc")
+                        .end(function (err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message', 'Teams Not Found!(invalid keyword)');
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
+        });
+
+        describe('GET /:id/info', () => {
+            it('should return the specific player related to player schema', function (done) {
                 chai.request(server)
                     .get('/teams')
                     .end(function (err, res) {
                         chai.request(server)
-                            .get('/teams/' + res.body[0]._id)
+                            .get('/teams/' + res.body[0]._id + "/info")
                             .end(function (err, res) {
                                 expect(res).to.have.status(200);
-                                expect(res.body).to.be.a('Object');
-                                expect(res.body).include({name: "Los Angeles Cippers", city: "Los Angeles"});
+                                expect(res.body).to.be.a('object');
+                                expect(res.body).to.have.property("message", 'Team Successfully find player!');
+                                expect(res.body).to.have.property("data");
+                                expect(res.body.data).to.have.property("playerId");
+                                expect(res.body.data.playerId).be.a('array');
+                                expect(res.body.data.playerId).include({name: "Avery Bradley", age: 27});
                                 Team.collection.drop();
                                 Player.collection.drop();
                                 done();
@@ -102,76 +175,8 @@ describe('Teams', function () {
                     });
             });
         });
-        describe('When id is invalid', function () {
-            it('should return  a 404 and a message for invalid team id', function (done) {
-                chai.request(server)
-                    .get('/teams/' + "aabbcc")
-                    .end(function (err, res) {
-                        expect(res).to.have.status(404);
-                        expect(res.body).to.have.property('message', 'Team NOT Found! Please check the right id');
-                        Team.collection.drop();
-                        Player.collection.drop();
-                        done();
-                    });
-            });
-         });
     });
-    describe('GET /names/:name', () => {
-        describe('When keyword is valid', function () {
-            it('should return the specific team with fuzzy search', function (done) {
-                chai.request(server)
-                    .get('/teams/name' + "/Los")
-                    .end(function (err, res) {
-                        expect(res).to.have.status(200);
-                        expect(res.body).to.be.a('array');
-                        expect(res.body.length).to.equal(2);
-                        let result = _.map(res.body, (teams) => {
-                            return {name: teams.name}
-                        });
-                        expect(result).to.include({name: "Los Angeles Cippers"});
-                        expect(result).to.include({name: "Los Angeles Lakers"});
-                        Team.collection.drop();
-                        Player.collection.drop();
-                        done();
-                    });
-            });
-        });
-        describe('When keyword is invalid', function () {
-            it('should return  a 404 and a message for invalid keyword', function (done) {
-                chai.request(server)
-                    .get('/teams/name' + "/aabbcc")
-                    .end(function (err, res) {
-                        expect(res).to.have.status(404);
-                        expect(res.body).to.have.property('message', 'Teams Not Found!(invalid keyword)');
-                        Team.collection.drop();
-                        Player.collection.drop();
-                        done();
-                    });
-            });
-        });
-    });
-    describe('GET /:id/info', () => {
-        it('should return the specific player related to player schema', function (done) {
-            chai.request(server)
-                .get('/teams')
-                .end(function (err, res) {
-                    chai.request(server)
-                        .get('/teams/' + res.body[0]._id + "/info")
-                        .end(function (err, res) {
-                            expect(res).to.have.status(200);
-                            expect(res.body).to.be.a('object');
-                            expect(res.body).to.have.property("message", 'Team Successfully find player!');
-                            expect(res.body).to.have.property("data");
-                            expect(res.body.data).to.have.property("playerId");
-                            expect(res.body.data.playerId).be.a('array');
-                            expect(res.body.data.playerId).include({name: "Avery Bradley",age:27});
-                            Team.collection.drop();
-                            Player.collection.drop();
-                            done();
-                        });
-                });
-        });
-    });
+
 
     describe('POST api', function () {
         describe('POST /teams', function () {
@@ -216,6 +221,7 @@ describe('Teams', function () {
         }); // end-describe
     });
 
+
     describe('PUT api',function() {
         describe('PUT /teams/:id/rank', () => {
             describe('When id is valid', function () {
@@ -247,21 +253,72 @@ describe('Teams', function () {
                         });
                 });  // end-after
             }); // end-describe
-        });
-        describe('When id is invalid', function () {
-            it('should return a 404 and a message for invalid team id', function (done) {
-                let rank = {rank: 111};
-                chai.request(server)
-                    .put('/teams/assad/rank')
-                    .send(rank)
-                    .end(function (err, res) {
-                        expect(res).to.have.status(404);
-                        expect(res.body).to.have.property('message', 'Team NOT ChangeRank!');
-                        Team.collection.drop();
-                        Player.collection.drop();
-                        done();
-                    });
+
+            describe('When id is invalid', function () {
+                it('should return a 404 and a message for invalid team id', function (done) {
+                    let rank = {rank: 111};
+                    chai.request(server)
+                        .put('/teams/assad/rank')
+                        .send(rank)
+                        .end(function (err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message', 'Team NOT ChangeRank!');
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
             });
+        });
+
+        describe('PUT /teams/:id/numPlayer', () => {
+            describe('When id is valid', function () {
+                it('should return a message and the nunmPlayer changed', function (done) {
+                    chai.request(server)
+                        .get('/teams')
+                        .end(function (err, res) {
+                            let numPlayer = {numPlayer: 201};
+                            chai.request(server)
+                                .put('/teams/' + res.body[0]._id + '/numPlayer')
+                                .send(numPlayer)
+                                .end(function (error, response) {
+                                    expect(response).to.have.status(200);
+                                    expect(response.body).to.be.a('object');
+                                    expect(response.body).to.have.property('message').equal('Team Successfully Change NumPlayer!');
+                                    done()
+                                });
+                        });
+                });
+                after(function (done) {
+                    chai.request(server)
+                        .get('/teams')
+                        .end(function (err, res) {
+                            expect(res.body[0].numPlayer).equal(201);
+
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+
+                });  // end-after
+            }); // end-describe
+
+            describe('When id is invalid', function () {
+                it('should return a 404 and a message for invalid team id', function (done) {
+                    let numPlayer = {numPlayer: 201};
+                    chai.request(server)
+                        .put('/teams/assad/numPlayer')
+                        .send(numPlayer)
+                        .end(function (err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message', 'Team NOT Change NumPlayer!');
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
+
         });
     });
 });
