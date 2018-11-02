@@ -321,5 +321,57 @@ describe('Teams', function () {
 
         });
     });
+    describe('DELETE api',function(){
+        describe('delete /teams/:id',  function () {
+            describe('When id is valid', function () {
+                it('should return a message and delete a specific team', function (done) {
+                    chai.request(server)
+                        .get('/teams')
+                        .end(function (err, res) {
+                            chai.request(server)
+                                .delete('/teams/' + res.body[0]._id)
+                                .end(function (error, response) {
+                                    expect(response).to.have.status(200);
+                                    expect(response.body).to.have.property('message').equal('Team Successfully Deleted!');
+                                    done();
+                                });
+                        });
+                });
+                after(function  (done) {
+                    chai.request(server)
+                        .get('/teams')
+                        .end(function(err, res) {
+                            expect(res).to.have.status(200);
+                            expect(res.body).to.be.a('array');
+                            let result = _.map(res.body, (teams) => {
+                                return {name: teams.name, city: teams.city}
+                            });
+                            expect(result).to.not.include({name: 'Los Angeles Cippers', city: "Los Angeles"});
+
+                            Team.collection.drop();
+                            Player.collection.drop();
+
+
+                            done();
+                        });
+                });  // end-after
+            }); // end-describe
+            describe('When id is invalid',function (){
+                it('should return a 404 and a message for invalid team id', function(done) {
+                    chai.request(server)
+                        .delete('/teams/asfsaf')
+                        .end(function(err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message','Team NOT DELETED!(invalid id)' ) ;
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
+        });
+    });
 });
+
+
 
