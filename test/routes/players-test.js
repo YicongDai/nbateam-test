@@ -229,46 +229,74 @@ describe('Players', function () {
     });
     describe('POST api', function () {
         describe('POST /players', function () {
-            it('should return confirmation message', function (done) {
-                let player = {
-                    name: "Klay Thompson",
-                    age: 28,
-                    height: 201,
-                    weight: 98,
-                    nationality: "USA",
-                    position: "PG/SG",
-                    teamId: "5bd0e6547a18b008fca9f57d",
-                    salary: 1899,
-                    joinTime: "2011"
+            describe('when values are valid', function () {
+                it('should return confirmation message', function (done) {
+                    let player = {
+                        name: "Klay Thompson",
+                        age: 28,
+                        height: 201,
+                        weight: 98,
+                        nationality: "USA",
+                        position: "PG/SG",
+                        teamId: "5bd0e6547a18b008fca9f57d",
+                        salary: 1899,
+                        joinTime: "2011"
 
-                };
-                chai.request(server)
-                    .post('/players')
-                    .send(player)
-                    .end(function (err, res) {
-                        expect(res).to.have.status(200);
-                        expect(res.body).to.have.property('message').equal('Player Added Successfully!');
-                        done();
-                    });
-            });
-            after(function (done) {
-                chai.request(server)
-                    .get('/players')
-                    .end(function (err, res) {
-                        let result = _.map(res.body, (player) => {
-                            return {
-                                name: player.name,
-                            };
+                    };
+                    chai.request(server)
+                        .post('/players')
+                        .send(player)
+                        .end(function (err, res) {
+                            expect(res).to.have.status(200);
+                            expect(res.body).to.have.property('message').equal('Player Added Successfully!');
+                            done();
                         });
-                        expect(result).to.include({name: 'Klay Thompson'});
+                });
+                after(function (done) {
+                    chai.request(server)
+                        .get('/players')
+                        .end(function (err, res) {
+                            let result = _.map(res.body, (player) => {
+                                return {
+                                    name: player.name,
+                                };
+                            });
+                            expect(result).to.include({name: 'Klay Thompson'});
 
-                        Team.collection.drop();
-                        Player.collection.drop();
+                            Team.collection.drop();
+                            Player.collection.drop();
 
-                        done();
-                    });
-            });  // end-after
-        }); // end-describe
+                            done();
+                        });
+                });  // end-after
+            }); // end-describe
+            describe('when values are valid', function () {
+                it('should return confirmation message', function (done) {
+                    let player = {
+                        name: "Klay Thompson",
+                        age: -1,
+                        height: 201,
+                        weight: 98,
+                        nationality: "USA",
+                        position: "PG/SG",
+                        teamId: "5bd0e6547a18b008fca9f57d",
+                        salary: 1899,
+                        joinTime: "2011"
+
+                    };
+                    chai.request(server)
+                        .post('/players')
+                        .send(player)
+                        .end(function (err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message').equal('Player NOT Added!(invalid value!)');
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
+        });
 
     });
     describe('PUT api',function() {

@@ -144,12 +144,19 @@ router.addPlayer = (req, res) => {
     player.salary=req.body.salary;
     player.joinTime=req.body.joinTime;
 
-    player.save(function(err,player) {
-        if (err)
-            res.json({ message: 'Player NOT Added!', errmsg : err } );// return a suitable error message
-        else
-            res.json({ message: 'Player Added Successfully!',data:player});// return a suitable success message
-    });
+    if(player.age>0&& player.height>0&& player.weight>0&&player.salary>0){
+        player.save(function(err,player) {
+            if (err)
+                res.json({ message: 'Player NOT Added!', errmsg : err } );// return a suitable error message
+            else
+                res.json({ message: 'Player Added Successfully!',data:player});// return a suitable success message
+        });
+    }
+    else  {
+        res.status(404);
+        res.json({message: 'Player NOT Added!(invalid value!)'});// return a suitable error message
+    }
+
 };
 
 //change salary
