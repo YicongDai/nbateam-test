@@ -94,16 +94,21 @@ router.addTeam = (req, res) => {
     team.rank=req.body.rank;
     team.playerId=req.body.playerId;
 
+   if(team.rank>0&& team.numPlayer>=0&&team.championships>=0) {
+       team.save(function (err) {
+           if (err) {
+               res.status(404)
+               res.json({message: 'Team NOT Added!', errmsg: err});// return a suitable error message
+           }
 
-    team.save(function(err) {
-        if (err){
-            res.status(404)
-            res.json({ message: 'Team NOT Added!', errmsg : err } );// return a suitable error message
-        }
-
-        else
-            res.json({ message: 'Team Added Successfully!',data:team});// return a suitable success message
-    });
+           else
+               res.json({message: 'Team Added Successfully!', data: team});// return a suitable success message
+       });
+   }
+   else  {
+       res.status(404);
+       res.json({message: 'Team NOT Added!(invalid value!)'});// return a suitable error message
+   }
 };
 
 //find all the players' information related to a team

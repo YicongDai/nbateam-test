@@ -180,44 +180,68 @@ describe('Teams', function () {
 
     describe('POST api', function () {
         describe('POST /teams', function () {
-            it('should return confirmation message', function (done) {
-                let team = {
-                    zone: {name: "Center Division", location: "East"},
-                    name: "Cleveland Cavaliers",
-                    city: "Cleveland",
-                    numPlayer: 20,
-                    championships: 16,
-                    rank: 1,
-                };
-                chai.request(server)
-                    .post('/teams')
-                    .send(team)
-                    .end(function (err, res) {
-                        expect(res).to.have.status(200);
-                        expect(res.body).to.have.property('message').equal('Team Added Successfully!');
+            describe('when values are valid',function(){
+                it('should return confirmation message', function (done) {
+                    let team = {
+                        zone: {name: "Center Division", location: "East"},
+                        name: "Cleveland Cavaliers",
+                        city: "Cleveland",
+                        numPlayer: 20,
+                        championships: 16,
+                        rank: 1,
+                    };
+                    chai.request(server)
+                        .post('/teams')
+                        .send(team)
+                        .end(function (err, res) {
+                            expect(res).to.have.status(200);
+                            expect(res.body).to.have.property('message').equal('Team Added Successfully!');
 
-                        done();
-                    });
-            });
-            after(function (done) {
-                chai.request(server)
-                    .get('/teams')
-                    .end(function (err, res) {
-                        let result = _.map(res.body, (team) => {
-                            return {
-                                name: team.name,
-                                city: team.city
-                            };
+                            done();
                         });
-                        expect(result).to.include({name: 'Cleveland Cavaliers', city: "Cleveland"});
+                });
+                after(function (done) {
+                    chai.request(server)
+                        .get('/teams')
+                        .end(function (err, res) {
+                            let result = _.map(res.body, (team) => {
+                                return {
+                                    name: team.name,
+                                    city: team.city
+                                };
+                            });
+                            expect(result).to.include({name: 'Cleveland Cavaliers', city: "Cleveland"});
 
-                        Team.collection.drop();
-                        Player.collection.drop();
-                        done();
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
 
 
-                    });
-            });  // end-after
+                        });
+                });  // end-after
+            });
+            describe('when values are invalid',function(){
+                it('should return confirmation message', function (done) {
+                    let team = {
+                        zone: {name: "Center Division", location: "East"},
+                        name: "Cleveland Cavaliers",
+                        city: "Cleveland",
+                        numPlayer: 20,
+                        championships: 16,
+                        rank: -1,
+                    };
+                    chai.request(server)
+                        .post('/teams')
+                        .send(team)
+                        .end(function (err, res) {
+                            expect(res).to.have.status(404);
+                            expect(res.body).to.have.property('message').equal('Team NOT Added!(invalid value!)');
+                            Team.collection.drop();
+                            Player.collection.drop();
+                            done();
+                        });
+                });
+            });
         }); // end-describe
     });
 
