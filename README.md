@@ -30,6 +30,7 @@ players
 ## Data storage.
 This test will include the integration of MongoDB  with the API.So the database schemas are as follows:
 teams
+
     let TeamSchema = new mongoose.Schema({
             name: String,
             city: String,
@@ -43,6 +44,7 @@ teams
         { collection: 'teams' });
 
 players
+
     let PlayerSchema = new mongoose.Schema({
         name: String,
         age: Number,
@@ -60,6 +62,7 @@ players
 
 ## Sample Test execution.
  Tests for teams:
+ 
         C:\Users\Administrator\Desktop\NBA\NBATeam-test>npm test
 
         > nbateam-test@0.0.0 test C:\Users\Administrator\Desktop\NBA\NBATeam-test
