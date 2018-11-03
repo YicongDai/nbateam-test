@@ -7,7 +7,7 @@ This project can help users to view the basic information of NBA teams and playe
 
 
 ## API endpoints.
-teams
+teams：
  + GET /teams - Get all teams.
  + GET /teams/:id - Get a specific team by id
  + GET /teams/name/:name - Get teams which meet the conditions by fuzzy search for name.
@@ -17,7 +17,7 @@ teams
  + PUT /teams/:id/numPlayer - Update the numPlayer of a specific team.
  + DELETE /teams/:id - Delete a specific team by id
 
-players
+players：
  + GET /players - Get all players.
  + GET /players/:name - Get a specific player by name
  + GET /players/name/:name - Get players which meet the conditions by fuzzy search for name.
@@ -29,7 +29,7 @@ players
 
 ## Data storage.
 This test will include the integration of MongoDB  with the API.So the database schemas are as follows:
-teams
+teams：
 
     let TeamSchema = new mongoose.Schema({
             name: String,
@@ -43,7 +43,7 @@ teams
 
         { collection: 'teams' });
 
-players
+players：
 
     let PlayerSchema = new mongoose.Schema({
         name: String,
